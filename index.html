@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Sketch</title>
+
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <script src="libraries/p5.min.js"></script>
+  <script src="libraries/p5.sound.min.js"></script>
+  <script src="libraries/quicksettings.js"></script>
+  <script src="libraries/p5.gui.js"></script>
+  <script>JSCLASS_PATH = '/path/to/jsclass/min'</script>
+  <script src="/path/to/jsclass/min/loader-browser.js"></script>
+
+  <style>
+    /* Style for the toggleable button */
+    .toggle-button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ccc;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Styling for the active (checked) button */
+    .toggle-button.active {
+      background-color: #2196F3;
+      color: #fff;
+    }
+  </style>
+
+
+</head>
+
+<script>
+
+  var activeButtonId = null;
+
+  function toggleButton(button) {
+    var buttonId = button.getAttribute("data-button-id");
+
+    if (activeButtonId === buttonId) {
+      // If the clicked button is already active, deactivate it
+      button.classList.remove("active");
+      activeButtonId = null;
+    } else {
+      // Deactivate the previously active button (if any)
+      activeButton = document.querySelector(".toggle-button.active");
+      if (activeButton) {
+        activeButton.classList.remove("active");
+      }
+
+      // Activate the clicked button
+      button.classList.add("active");
+      activeButtonId = buttonId;
+    }
+  }
+
+  /*
+  function toggleButton(button) {
+    button.classList.toggle("active");
+    
+    //console.log(button);
+    //console.log(document.getElementById('wall_button'));
+
+    if(button = document.getElementById('wall_button')){
+      wallToggledOn = button.classList.contains("active");
+      //eraseToggledOn = button.classList.toggle("active");
+      //eraseToggledOn = false;
+    }
+    if(button = document.getElementById('erase_button')){
+      eraseToggledOn = button.classList.contains("active");
+      //wallToggledOn = button.classList.toggle("active");
+      //wallToggledOn = false;
+    }
+    
+    
+  }
+  */
+</script>
+
+
+
+<body>
+  <div class="toggle-button" onclick="toggleButton(this)" data-button-id="wall_button">
+    Add Wall
+    <div class="slider"></div>
+  </div>
+
+  <div class="toggle-button" onclick="toggleButton(this)" data-button-id="erase_button">
+    Erase
+    <div class="slider"></div>
+  </div>
+  <div class="toggle-button" onclick="toggleButton(this)" data-button-id="start_location_button">
+    Start Point
+    <div class="slider"></div>
+  </div>
+  <div class="toggle-button" onclick="toggleButton(this)" data-button-id="end_location_button">
+    End Point
+    <div class="slider"></div>
+  </div>
+  <select>
+    <option value="apple">Apple</option>
+    <option value="banana">Banana</option>
+    <option value="orange">Orange</option>
+    <option value="grape">Grape</option>
+  </select>
+  <button id="startButton">Start</button>
+  <script src="sketch.js"></script>
+</body>
+
+</html>
