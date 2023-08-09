@@ -1,5 +1,9 @@
 const startButton = document.getElementById("startButton");
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 
 let w = 30;
@@ -10,19 +14,19 @@ let checkbox;
 var activeButtonId = null;
 let locked = false;
 var canvas;
-
+let moveHistory = [];
 const empty = 0;
 const wall = 1;
 const start_point = 2;
 const end_point = 3;
+const explored = 4;
+const unexplored = 5;
 
 //CANVAS PORTION
 function setup() {
   canvas = createCanvas(1200, 600);
 
   canvas.mouseClicked(addStart);
-
-
 
 
 
@@ -43,34 +47,62 @@ function setup() {
     }
   }
 
+  // let c1 = new Coords(0,0);
+  // let c2 = new Coords(1,0); 
+  // let c3 = new Coords(1,7); 
+  // let c4 = new Coords(6,7); 
+  // c4.parent = c3;
+  // c3.parent = c2;
+  // c2.parent = c1;
+  // let coordz = [c4,c3,c2,c1];
+  // let test = new Set();
+  // test.add(c1.toString());
+  // test.add(c2.toString());
+  // test.add(c3.toString());
+
+  // console.log(test.has(coordz[0].toString()));
+  // console.log(test.has(coordz[1].toString()));
+  // console.log(test.has(coordz[2].toString()));
+  // console.log(test.has(coordz[3].toString()));
   // checkbox = createCheckbox('label', false);
   // checkbox.changed(myCheckedEvent);
-
-
-
-  //init();
+  
 }
 
+
+
+
+
+
 function draw() {
-
-
-
   background(220);
+  //noFill();
+  
+
+
+  
   fill(225);
-  stroke(0)
+  stroke(0);
+  strokeWeight(1);
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       if (board[i][j] == empty) {
         fill(225);
       }
       else if (board[i][j] == wall) {
-        fill(255, 45, 34);
+        fill("#000000");
       }
       else if (board[i][j] == start_point) {
-        fill(25, 80, 64);
+        fill("#AD7800");
       }
       else if (board[i][j] == end_point) {
-        fill(34, 40, 91)
+        fill("#0D087A")
+      }
+      else if (board[i][j] == explored) {
+        fill("#BBB093");
+      }
+      else if (board[i][j] == unexplored) {
+        fill("#98D095");
       }
 
       rect(i * w, j * w, w - 1, w - 1);
@@ -78,9 +110,31 @@ function draw() {
   }
 
 
+  strokeWeight(5);  
+
+
+  // let c1 = new Coords(0,0);
+  // let c2 = new Coords(1,0); 
+  // let c3 = new Coords(1,7); 
+  // let c4 = new Coords(6,7); 
+  // c4.parent = c3;
+  // c3.parent = c2;
+  // c2.parent = c1;
+  // let coordz = [c4,c3,c2,c1];
+  for(var i=0; i < moveHistory.length -1; i++){
+    line(moveHistory[i].firstValue *w + w/2, moveHistory[i].secondValue*w + w/2, moveHistory[i].parent.firstValue*w+ w/2, moveHistory[i].parent.secondValue*w+ w/2);
+  }
+
+  
+
+
+
 
 
 }
+
+
+
 
 
 function addWall() {
@@ -92,6 +146,18 @@ function addWall() {
 function eraseObjects() {
   if (activeButtonId == "erase_button") {
     board[floor(mouseX / w)][floor(mouseY / w)] = 0;
+  }
+
+}
+
+
+function eraseAttempted() {
+  for (var i = 0; i < columns; i++) {
+    for (var j = 0; j < rows; j++) {
+      if (board[i][j] == 4 || board[i][j] == 5) {
+        board[i][j] = 0;
+      }
+    }
   }
 
 }
@@ -161,6 +227,7 @@ class Coords {
   constructor(firstValue, secondValue) {
     this.firstValue = firstValue;
     this.secondValue = secondValue;
+    this.parent = null;
   }
 
   toString() {
@@ -187,68 +254,25 @@ class Coords {
 
 }
 
-class Stack {
-  constructor() {
-    this.items = [];
-  }
-
-  push(item) {
-    this.items.push(item);
-  }
-
-  pop() {
-    if (!this.isEmpty()) {
-      return this.items.pop();
-    }
-  }
-
-  peek() {
-    if (!this.isEmpty()) {
-      return this.items[this.items.length - 1];
-    }
-  }
-
-  isEmpty() {
-    return this.items.length === 0;
-  }
-
-  size() {
-    return this.items.length;
-  }
-
-  clear() {
-    this.items = [];
-  }
-
-  toString() {
-    console.log(this.items);
-  }
-}
-
 
 
 
 
 function possibleMoves(currentLocation) {
-  let moves = []
+  
   // console.log(rows, columns);
   // console.log(currentLocation.toString());
   // console.log("-------------------------------");
 
-
-  if (currentLocation.firstValue + 1 >= 0 && currentLocation.firstValue + 1 <= columns - 1 && currentLocation.secondValue >= 0 && currentLocation.secondValue <= rows - 1) {
-    if (board[currentLocation.firstValue + 1][currentLocation.secondValue] != 1) {
-      moves.push(new Coords(currentLocation.firstValue + 1, currentLocation.secondValue));
+  let moves= [];
+  if (currentLocation.firstValue >= 0 && currentLocation.firstValue <= columns - 1 && currentLocation.secondValue + 1 >= 0 && currentLocation.secondValue + 1 <= rows - 1) {
+    if (board[currentLocation.firstValue][currentLocation.secondValue + 1] != 1) {
+      moves.push(new Coords(currentLocation.firstValue, currentLocation.secondValue + 1));
     }
   }
   if (currentLocation.firstValue - 1 >= 0 && currentLocation.firstValue - 1 <= columns - 1 && currentLocation.secondValue >= 0 && currentLocation.secondValue <= rows - 1) {
     if (board[currentLocation.firstValue - 1][currentLocation.secondValue] != 1) {
       moves.push(new Coords(currentLocation.firstValue - 1, currentLocation.secondValue));
-    }
-  }
-  if (currentLocation.firstValue >= 0 && currentLocation.firstValue <= columns - 1 && currentLocation.secondValue + 1 >= 0 && currentLocation.secondValue + 1 <= rows - 1) {
-    if (board[currentLocation.firstValue][currentLocation.secondValue + 1] != 1) {
-      moves.push(new Coords(currentLocation.firstValue, currentLocation.secondValue + 1));
     }
   }
   if (currentLocation.firstValue >= 0 && currentLocation.firstValue <= columns - 1 && currentLocation.secondValue - 1 >= 0 && currentLocation.secondValue - 1 <= rows - 1) {
@@ -257,6 +281,17 @@ function possibleMoves(currentLocation) {
     }
 
   }
+  if (currentLocation.firstValue + 1 >= 0 && currentLocation.firstValue + 1 <= columns - 1 && currentLocation.secondValue >= 0 && currentLocation.secondValue <= rows - 1) {
+    if (board[currentLocation.firstValue + 1][currentLocation.secondValue] != 1) {
+      moves.push(new Coords(currentLocation.firstValue + 1, currentLocation.secondValue));
+    }
+  }
+  
+  
+  
+  
+
+
 
   // for (var i = -1; i < 2; i++) {
   //   for (var j = -1; j < 2; j++) {
@@ -269,7 +304,9 @@ function possibleMoves(currentLocation) {
   // }
 
 
+  //return shuffle(moves);
   return moves;
+
 }
 
 
@@ -285,16 +322,18 @@ function getStartingPoint() {
 
 }
 startButton.addEventListener("click", () => {
+  //moveHistory = [];
   //const selectedFruit = fruitSelect.value;
   var sp = getStartingPoint();
+  eraseAttempted();
   if (sp != -1) {
 
     var moves = depthFirstSearch(board, sp);
     console.log("MOVE HISTORY");
-    moves.forEach(move => {
+    // moves.forEach(move => {
 
-      console.log(move.toString())
-    });
+    //   console.log(move.toString())
+    // });
   }
   else {
     console.log("NO START FOUND");
@@ -305,45 +344,86 @@ startButton.addEventListener("click", () => {
 
 
 
-function depthFirstSearch(board, startPoint) {
+async function depthFirstSearch(board, startPoint) {
 
 
 
   let testSet = new Set();
   //WHY IS THE SET NOT WORKING LMFAO AHHHHHHHHHHHHHHHHHH
-  let moveHistory = [];
+  
   let visitedCoords = new Set();
-  let toVisit = new Stack();
+  let toVisit = [];
 
   toVisit.push(startPoint);
-  console.log("SDtarting search...");
+  console.log("Starting search...");
   var counter = 0;
-  while (!toVisit.isEmpty()) {
-    //toVisit.toString();
+  while (toVisit.length != 0) {
     var currentMove = toVisit.pop();
+    // if(visitedCoords.has(currentMove.toString())){
+    //   continue;
+    // }
+    await sleep(50);
+    moveHistory = [];
+    
+    //toVisit.toString();
+   console.log(...toVisit);
+    
+    //console.log(...toVisit.toList());
     visitedCoords.add(currentMove.toString());
-    moveHistory.push(currentMove);
+    //moveHistory.push(currentMove);
+
 
     if (board[currentMove.firstValue][currentMove.secondValue] == end_point) {
       console.log("FOUND!!!!!!!!");
-      return moveHistory;
+        return moveHistory;
     }
+
+    //coloring
+    if (board[currentMove.firstValue][currentMove.secondValue] == empty || board[currentMove.firstValue][currentMove.secondValue] == unexplored) {
+      board[currentMove.firstValue][currentMove.secondValue] = explored;
+    }
+
+    //coloring explored and unexplored
+    for (var i = 0; i < toVisit.length; i++) {
+      if (board[toVisit[i].firstValue][toVisit[i].secondValue] == empty) {
+        board[toVisit[i].firstValue][toVisit[i].secondValue] = unexplored;
+      }
+
+    }
+
+    let bestPath = currentMove;
+
+    while(bestPath.parent !==  null){
+      moveHistory.push(bestPath);
+      bestPath = bestPath.parent;
+    }
+
+
     var nextMoves = possibleMoves(currentMove);
+    
+    console.log([...visitedCoords]);
     for (var i = 0; i < nextMoves.length; i++) {
+      console.log(nextMoves[i]);
+      console.log(!visitedCoords.has(nextMoves[i].toString()));
       if (!visitedCoords.has(nextMoves[i].toString())) {
+        nextMoves[i].parent = currentMove;
+        visitedCoords.add(nextMoves[i].toString());
         toVisit.push(nextMoves[i]);
       }
 
     }
-    
-    //toVisit.toString();
+ 
+
     counter++;
 
   }
-  console.log(testSet.values());
 
   console.log("Search Finisjhed!");
 
   return moveHistory;
 
 }
+
+
+
+
