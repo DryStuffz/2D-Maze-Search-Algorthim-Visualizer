@@ -128,9 +128,6 @@ function draw() {
   
 
 
-
-
-
 }
 
 
@@ -241,17 +238,6 @@ class Coords {
     return (coord2.firstValue === this.firstValue && coord2.secondValue === this.secondValue);
   }
 
-  hashCode() {
-    const prime = 7; // You can choose any prime number
-
-    let hash = 17; // Start with a prime seed value
-    hash = hash * prime + this.firstValue;
-    hash = hash * prime + this.secondValue;
-
-    return hash;
-  }
-
-
 }
 
 
@@ -287,23 +273,6 @@ function possibleMoves(currentLocation) {
     }
   }
   
-  
-  
-  
-
-
-
-  // for (var i = -1; i < 2; i++) {
-  //   for (var j = -1; j < 2; j++) {
-  //     if (i != 0 || j != 0) {
-  //       if (currentLocation.firstValue + i >= 0 && currentLocation.firstValue + i <= columns - 1 && currentLocation.secondValue + j >= 0 && currentLocation.secondValue + j <= rows - 1) {
-  //         moves.push(new Coords(currentLocation.firstValue + i, currentLocation.secondValue + j));
-  //       }
-  //     }
-  //   }
-  // }
-
-
   //return shuffle(moves);
   return moves;
 
@@ -321,20 +290,32 @@ function getStartingPoint() {
   return -1;
 
 }
+
+
+
 startButton.addEventListener("click", () => {
   //moveHistory = [];
-  //const selectedFruit = fruitSelect.value;
+  let algorthims = document.getElementById("Algorthims");
+  const selectedAlgo = algorthims.value;
+
+
   var sp = getStartingPoint();
   eraseAttempted();
   if (sp != -1) {
 
-    var moves = depthFirstSearch(board, sp);
+    if(selectedAlgo == "DFS"){
+      depthFirstSearch(board, sp);
+    }
+    else if(selectedAlgo == "BFS"){
+      breadthFirstSearch(board, sp);
+    }
+    
     console.log("MOVE HISTORY");
     // moves.forEach(move => {
 
     //   console.log(move.toString())
     // });
-  }
+    }
   else {
     console.log("NO START FOUND");
   }
@@ -346,9 +327,6 @@ startButton.addEventListener("click", () => {
 
 async function depthFirstSearch(board, startPoint) {
 
-
-
-  let testSet = new Set();
   //WHY IS THE SET NOT WORKING LMFAO AHHHHHHHHHHHHHHHHHH
   
   let visitedCoords = new Set();
@@ -359,11 +337,13 @@ async function depthFirstSearch(board, startPoint) {
   var counter = 0;
   while (toVisit.length != 0) {
     var currentMove = toVisit.pop();
+    
     // if(visitedCoords.has(currentMove.toString())){
     //   continue;
     // }
+
     await sleep(50);
-    moveHistory = [];
+    
     
     //toVisit.toString();
    console.log(...toVisit);
@@ -375,6 +355,7 @@ async function depthFirstSearch(board, startPoint) {
 
     if (board[currentMove.firstValue][currentMove.secondValue] == end_point) {
       console.log("FOUND!!!!!!!!");
+      moveHistory.add(currentMove);
         return moveHistory;
     }
 
@@ -392,7 +373,7 @@ async function depthFirstSearch(board, startPoint) {
     }
 
     let bestPath = currentMove;
-
+    moveHistory = [];
     while(bestPath.parent !==  null){
       moveHistory.push(bestPath);
       bestPath = bestPath.parent;
@@ -419,6 +400,89 @@ async function depthFirstSearch(board, startPoint) {
   }
 
   console.log("Search Finisjhed!");
+
+  return moveHistory;
+
+}
+
+
+
+
+async function breadthFirstSearch(board, startPoint) {
+
+
+  //WHY IS THE SET NOT WORKING LMFAO AHHHHHHHHHHHHHHHHHH
+  let visitedCoords = new Set();
+  let toVisit = [];
+
+  toVisit.push(startPoint);
+  console.log("Starting search...");
+  var counter = 0;
+  while (toVisit.length != 0) {
+    var currentMove = toVisit.pop();
+    
+    // if(visitedCoords.has(currentMove.toString())){
+    //   continue;
+    // }
+
+    await sleep(50);
+    
+    
+    //toVisit.toString();
+    console.log(...toVisit);
+    
+    //console.log(...toVisit.toList());
+    visitedCoords.add(currentMove.toString());
+    //moveHistory.push(currentMove);
+
+
+    if (board[currentMove.firstValue][currentMove.secondValue] == end_point) {
+      console.log("FOUND!!!!!!!!");
+      moveHistory.add(currentMove);
+        return moveHistory;
+    }
+
+    //coloring
+    if (board[currentMove.firstValue][currentMove.secondValue] == empty || board[currentMove.firstValue][currentMove.secondValue] == unexplored) {
+      board[currentMove.firstValue][currentMove.secondValue] = explored;
+    }
+  
+    //coloring explored and unexplored
+    for (var i = 0; i < toVisit.length; i++) {
+      if (board[toVisit[i].firstValue][toVisit[i].secondValue] == empty) {
+        board[toVisit[i].firstValue][toVisit[i].secondValue] = unexplored;
+      }
+    }
+
+    let bestPath = currentMove;
+    moveHistory = [];
+    while(bestPath.parent !==  null){
+      moveHistory.push(bestPath);
+      bestPath = bestPath.parent;
+    }
+
+
+    var nextMoves = possibleMoves(currentMove);
+    
+    console.log([...visitedCoords]);
+    for (var i = 0; i < nextMoves.length; i++) {
+      console.log(nextMoves[i]);
+      console.log(!visitedCoords.has(nextMoves[i].toString()));
+      if (!visitedCoords.has(nextMoves[i].toString())) {
+        nextMoves[i].parent = currentMove;
+        visitedCoords.add(nextMoves[i].toString());
+        toVisit.unshift(1);
+        toVisit[0] = nextMoves[i];
+      }
+
+    }
+ 
+
+    counter++;
+
+  }
+
+  console.log("Search Finished!");
 
   return moveHistory;
 
