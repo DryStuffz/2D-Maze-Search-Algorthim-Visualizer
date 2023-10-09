@@ -162,6 +162,8 @@ class MinPriorityQueue {
   }
 
 
+
+
 }
 
 
@@ -226,6 +228,8 @@ function addStart() {
       sp = new Coords(floor(mouseX / w), floor(mouseY / w));
     }
     else {
+      moveHistory = [];
+      eraseAttempted();
       if (board[sp.x][sp.y] == start_point) {
         board[sp.x][sp.y] = empty;
       }
@@ -256,7 +260,8 @@ class Coords {
     this.x = x;
     this.y = y;
     this.parent = null;
-    this.cost = null;
+    this.cost = 0; //also F for a Star
+    this.g = null; //for aStar
   }
 
   toString() {
@@ -307,7 +312,6 @@ startButton.addEventListener("click", () => {
   var sp = getStartingPoint();
   eraseAttempted();
   if (sp != -1) {
-
     if (selectedAlgo == "DFS") {
       depthFirstSearch(board, sp);
     }
@@ -490,6 +494,7 @@ async function greedy(board, startPoint) {
     for (var i = 0; i < nextMoves.length; i++) {
       //console.log(nextMoves[i]);
       //console.log(!visitedCoords.has(nextMoves[i].toString()));
+
       if (!visitedCoords.has(nextMoves[i].toString())) {
         nextMoves[i].parent = currentMove;
         visitedCoords.add(nextMoves[i].toString());
@@ -502,10 +507,84 @@ async function greedy(board, startPoint) {
   return moveHistory;
 }
 
-async function AStar(board, startPoint){
+function getIndex(target,arr){
+  for (var i = arr.length - 1; i >= 0; i--) {
+    if (arr[i].toString() == target.toString()) {
+      return i;
+    }
+  }
 
+  return -1;
+}
+function removeFromArray(arr, elt) {
+  // Could use indexOf here instead to be more efficient
+  for (var i = arr.length - 1; i >= 0; i--) {
+    if (arr[i] == elt) {
+      arr.splice(i, 1);
+    }
+  }
 }
 
+async function AStar(board, startPoint) {
+  let open = [];
+  let closed = [];
+  let ep = getEndPoints();
+  //put start node in open list
+  startPoint.cost = 0;
+  startPoint.g = 0
+  open.push(startPoint);
+
+  while (open.length > 0) {
+
+    var winner = 0;
+    for (var i = 0; i < open.length; i++) {
+      if (open[i].cost < open[winner].cost) {
+        winner = i;
+      }
+    }
+
+    var currentMove = open[winner];
+    if (board[currentMove.x][currentMove.y] == end_point) {
+      path_helper(open, currentMove, startPoint);
+      return moveHistory;
+    }
+
+    removeFromArray(open, currentMove);
+    closed.push(currentMove);
+    await sleep(50);
+    path_helper(open, currentMove, startPoint);
+
+    var nextMoves = possibleMoves(currentMove);
+
+    for (var i = 0; i < nextMoves.length; i++) {
+      var neighbor = nextMoves[i];
+      // Valid next spot?
+      if (getIndex(neighbor, closed) == -1 && board[neighbor.x][neighbor.y] != wall) {
+        var tempG = currentMove.g + getManhattanDistance(neighbor, currentMove);
+        
+        // Is this a better path than before?
+        var newPath = false;
+        if (getIndex(neighbor, open) != -1) {
+          if (tempG < open[getIndex(neighbor,open)].g) {
+            neighbor.g = tempG;
+            newPath = true;
+          }
+        } else {
+          neighbor.g = tempG;
+          newPath = true;
+          open.push(neighbor);
+        }
+
+        // Yes, it's a better path
+        if (newPath) {
+          var h = getSmallestCost(neighbor, ep);
+          neighbor.cost = neighbor.g + h;
+          neighbor.parent = currentMove;
+        }
+      }
+    }
+  }
+}
 
 
 
