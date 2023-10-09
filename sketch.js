@@ -4,8 +4,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
-
 let w = 30;
 let rows;
 let columns;
@@ -21,16 +19,13 @@ const start_point = 2;
 const end_point = 3;
 const explored = 4;
 const unexplored = 5;
-
+colors = [225, "#000000", "#AD7800", "#0D087A", "#BBB093", "#98D095"]
+let sp = null;
 //CANVAS PORTION
 function setup() {
   canvas = createCanvas(1200, 600);
 
   canvas.mouseClicked(addStart);
-
-
-
-
 
   columns = floor(width / w);
   rows = floor(height / w);
@@ -42,99 +37,30 @@ function setup() {
 
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
-
-      board[i][j] = 0;
+      board[i][j] = empty;
     }
   }
 
-  // let c1 = new Coords(0,0);
-  // let c2 = new Coords(1,0); 
-  // let c3 = new Coords(1,7); 
-  // let c4 = new Coords(6,7); 
-  // c4.parent = c3;
-  // c3.parent = c2;
-  // c2.parent = c1;
-  // let coordz = [c4,c3,c2,c1];
-  // let test = new Set();
-  // test.add(c1.toString());
-  // test.add(c2.toString());
-  // test.add(c3.toString());
-
-  // console.log(test.has(coordz[0].toString()));
-  // console.log(test.has(coordz[1].toString()));
-  // console.log(test.has(coordz[2].toString()));
-  // console.log(test.has(coordz[3].toString()));
-  // checkbox = createCheckbox('label', false);
-  // checkbox.changed(myCheckedEvent);
-
 }
-
-
-
-
 
 
 function draw() {
   background(220);
   //noFill();
-
-
-
-
   fill(225);
   stroke(0);
   strokeWeight(1);
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
-      if (board[i][j] == empty) {
-        fill(225);
-      }
-      else if (board[i][j] == wall) {
-        fill("#000000");
-      }
-      else if (board[i][j] == start_point) {
-        fill("#AD7800");
-      }
-      else if (board[i][j] == end_point) {
-        fill("#0D087A")
-      }
-      else if (board[i][j] == explored) {
-        fill("#BBB093");
-      }
-      else if (board[i][j] == unexplored) {
-        fill("#98D095");
-      }
-
+      fill(colors[board[i][j]])
       rect(i * w, j * w, w - 1, w - 1);
     }
   }
-
-
   strokeWeight(5);
-
-
-  // let c1 = new Coords(0,0);
-  // let c2 = new Coords(1,0); 
-  // let c3 = new Coords(1,7); 
-  // let c4 = new Coords(6,7); 
-  // c4.parent = c3;
-  // c3.parent = c2;
-  // c2.parent = c1;
-  // let coordz = [c4,c3,c2,c1];
   for (var i = 0; i < moveHistory.length - 1; i++) {
     line(moveHistory[i].x * w + w / 2, moveHistory[i].y * w + w / 2, moveHistory[i].parent.x * w + w / 2, moveHistory[i].parent.y * w + w / 2);
   }
-
-
-
-
 }
-
-
-
-
-
-
 
 
 class MinPriorityQueue {
@@ -235,23 +161,20 @@ class MinPriorityQueue {
     }
   }
 
-  
+
 }
-
-
 
 
 function addWall() {
   if (activeButtonId == "wall_button") {
-    board[floor(mouseX / w)][floor(mouseY / w)] = 1;
+    board[floor(mouseX / w)][floor(mouseY / w)] = wall;
   }
 }
 
 function eraseObjects() {
   if (activeButtonId == "erase_button") {
-    board[floor(mouseX / w)][floor(mouseY / w)] = 0;
+    board[floor(mouseX / w)][floor(mouseY / w)] = empty;
   }
-
 }
 
 
@@ -268,47 +191,49 @@ function eraseAttempted() {
 
 
 function mouseDragged() {
-
   addWall();
-
   eraseObjects();
-
-
-
 }
 
 
 function mousePressed() {
-
   addWall();
-
-
   eraseObjects();
-
   addEnd();
-
   console.log(`(${floor(mouseX / w)}, ${floor(mouseY / w)})`);
-  //var mvs = possibleMoves(new Coords(floor(mouseX / w), floor(mouseY / w)));
-  // for (var i = 0; i < mvs.length; i++) {
-  //   console.log(mvs[i].toString());
-  // }
-
-  //addStart();
 }
 
 function addStart() {
   //bug occurs because when a click is out of bounds 
   //it removes the start p0int
   //so when we switch buttons, addStart runs
+
+  //VERY INNEFFICIENT LETS TRY TO FIX
+  // if (activeButtonId == "start_location_button") {
+  //   for (var i = 0; i < columns; i++) {
+  //     for (var j = 0; j < rows; j++) {
+  //       if (board[i][j] == 2) {
+  //         board[i][j] = 0;
+  //       }
+  //     }
+  //   }
+  //   board[floor(mouseX / w)][floor(mouseY / w)] = 2;
+  // }
+
   if (activeButtonId == "start_location_button") {
-    for (var i = 0; i < columns; i++) {
-      for (var j = 0; j < rows; j++) {
-        if (board[i][j] == 2) {
-          board[i][j] = 0;
-        }
-      }
+    console.log("START" + sp);
+    if (sp == null) {
+      sp = new Coords(floor(mouseX / w), floor(mouseY / w));
     }
-    board[floor(mouseX / w)][floor(mouseY / w)] = 2;
+    else {
+      if (board[sp.x][sp.y] == start_point) {
+        board[sp.x][sp.y] = empty;
+      }
+      sp.x = floor(mouseX / w);
+      sp.y = floor(mouseY / w);
+
+    }
+    board[floor(mouseX / w)][floor(mouseY / w)] = start_point;
 
   }
 
@@ -317,8 +242,7 @@ function addStart() {
 
 function addEnd() {
   if (activeButtonId == "end_location_button") {
-
-    board[floor(mouseX / w)][floor(mouseY / w)] = 3;
+    board[floor(mouseX / w)][floor(mouseY / w)] = end_point;
   }
 
 }
@@ -349,56 +273,29 @@ class Coords {
 }
 
 
-
-
-
 function possibleMoves(currentLocation) {
-
-  // console.log(rows, columns);
-  // console.log(currentLocation.toString());
-  // console.log("-------------------------------");
-
   let moves = [];
-  if (currentLocation.x >= 0 && currentLocation.x <= columns - 1 && currentLocation.y + 1 >= 0 && currentLocation.y + 1 <= rows - 1) {
-    if (board[currentLocation.x][currentLocation.y + 1] != 1) {
-      moves.push(new Coords(currentLocation.x, currentLocation.y + 1));
-    }
+  if (currentLocation.x >= 0 && currentLocation.x <= columns - 1 && currentLocation.y + 1 >= 0 && currentLocation.y + 1 <= rows - 1 && board[currentLocation.x][currentLocation.y + 1] != wall) {
+    moves.push(new Coords(currentLocation.x, currentLocation.y + 1));
   }
-  if (currentLocation.x - 1 >= 0 && currentLocation.x - 1 <= columns - 1 && currentLocation.y >= 0 && currentLocation.y <= rows - 1) {
-    if (board[currentLocation.x - 1][currentLocation.y] != 1) {
-      moves.push(new Coords(currentLocation.x - 1, currentLocation.y));
-    }
+  if (currentLocation.x - 1 >= 0 && currentLocation.x - 1 <= columns - 1 && currentLocation.y >= 0 && currentLocation.y <= rows - 1 && board[currentLocation.x - 1][currentLocation.y] != wall) {
+    moves.push(new Coords(currentLocation.x - 1, currentLocation.y));
   }
-  if (currentLocation.x >= 0 && currentLocation.x <= columns - 1 && currentLocation.y - 1 >= 0 && currentLocation.y - 1 <= rows - 1) {
-    if (board[currentLocation.x][currentLocation.y - 1] != 1) {
-      moves.push(new Coords(currentLocation.x, currentLocation.y - 1));
-    }
-
+  if (currentLocation.x >= 0 && currentLocation.x <= columns - 1 && currentLocation.y - 1 >= 0 && currentLocation.y - 1 <= rows - 1 && board[currentLocation.x][currentLocation.y - 1] != wall) {
+    moves.push(new Coords(currentLocation.x, currentLocation.y - 1));
   }
-  if (currentLocation.x + 1 >= 0 && currentLocation.x + 1 <= columns - 1 && currentLocation.y >= 0 && currentLocation.y <= rows - 1) {
-    if (board[currentLocation.x + 1][currentLocation.y] != 1) {
-      moves.push(new Coords(currentLocation.x + 1, currentLocation.y));
-    }
+  if (currentLocation.x + 1 >= 0 && currentLocation.x + 1 <= columns - 1 && currentLocation.y >= 0 && currentLocation.y <= rows - 1 && board[currentLocation.x + 1][currentLocation.y] != wall) {
+    moves.push(new Coords(currentLocation.x + 1, currentLocation.y));
   }
-
-  //return shuffle(moves);
   return moves;
-
 }
-
 
 function getStartingPoint() {
-  for (var i = 0; i < columns; i++) {
-    for (var j = 0; j < rows; j++) {
-      if (board[i][j] == 2) {
-        return new Coords(i, j);
-      }
-    }
+  if (sp != null) {
+    return sp;
   }
   return -1;
-
 }
-
 
 
 startButton.addEventListener("click", () => {
@@ -417,15 +314,13 @@ startButton.addEventListener("click", () => {
     else if (selectedAlgo == "BFS") {
       breadthFirstSearch(board, sp);
     }
-    else if(selectedAlgo == "Greedy"){
+    else if (selectedAlgo == "Greedy") {
       greedy(board, sp);
     }
-
+    else if (selectedAlgo == "AStar") {
+      AStar(board, sp);
+    }
     console.log("MOVE HISTORY");
-    // moves.forEach(move => {
-
-    //   console.log(move.toString())
-    // });
   }
   else {
     console.log("NO START FOUND");
@@ -434,7 +329,28 @@ startButton.addEventListener("click", () => {
 
 });
 
+function path_helper(toVisit, currentMove, startPoint) {
+  /*
+  FUnction for the coloring of explored and unexplored nodes
+  */
+  if (board[currentMove.x][currentMove.y] == empty || board[currentMove.x][currentMove.y] == unexplored) {
+    board[currentMove.x][currentMove.y] = explored;
+  }
 
+  for (var i = 0; i < toVisit.length; i++) {
+    if (board[toVisit[i].x][toVisit[i].y] == empty) {
+      board[toVisit[i].x][toVisit[i].y] = unexplored;
+    }
+  }
+
+  let bestPath = currentMove;
+  moveHistory = [];
+  while (bestPath.parent !== null) {
+    moveHistory.push(bestPath);
+    bestPath = bestPath.parent;
+  }
+  moveHistory.push(startPoint);
+}
 
 async function depthFirstSearch(board, startPoint) {
 
@@ -445,184 +361,102 @@ async function depthFirstSearch(board, startPoint) {
 
   toVisit.push(startPoint);
   console.log("Starting search...");
-  var counter = 0;
+  //var counter = 0;
   while (toVisit.length != 0) {
     var currentMove = toVisit.pop();
 
-    // if(visitedCoords.has(currentMove.toString())){
-    //   continue;
-    // }
-
     await sleep(50);
-
-
     //toVisit.toString();
-    console.log(...toVisit);
-
+    //console.log(...toVisit);
     //console.log(...toVisit.toList());
     visitedCoords.add(currentMove.toString());
     //moveHistory.push(currentMove);
 
-
-    if (board[currentMove.x][currentMove.y] == end_point) {
-      console.log("FOUND!!!!!!!!");
-      moveHistory.add(currentMove);
-      return moveHistory;
-    }
-
-    //coloring
-    if (board[currentMove.x][currentMove.y] == empty || board[currentMove.x][currentMove.y] == unexplored) {
-      board[currentMove.x][currentMove.y] = explored;
-    }
-
-    //coloring explored and unexplored
-    for (var i = 0; i < toVisit.length; i++) {
-      if (board[toVisit[i].x][toVisit[i].y] == empty) {
-        board[toVisit[i].x][toVisit[i].y] = unexplored;
-      }
-
-    }
-
-    let bestPath = currentMove;
-    moveHistory = [];
-    while (bestPath.parent !== null) {
-      moveHistory.push(bestPath);
-      bestPath = bestPath.parent;
-    }
-
-
+    path_helper(toVisit, currentMove, startPoint);
     var nextMoves = possibleMoves(currentMove);
-
-    console.log([...visitedCoords]);
+    //console.log([...visitedCoords]);
     for (var i = 0; i < nextMoves.length; i++) {
-      console.log(nextMoves[i]);
-      console.log(!visitedCoords.has(nextMoves[i].toString()));
+      // console.log(nextMoves[i]);
+      // console.log(!visitedCoords.has(nextMoves[i].toString()));
+      if (board[nextMoves[i].x][nextMoves[i].y] == end_point) {
+        nextMoves[i].parent = currentMove;
+        path_helper(toVisit, nextMoves[i], startPoint);
+        return moveHistory;
+      }
       if (!visitedCoords.has(nextMoves[i].toString())) {
         nextMoves[i].parent = currentMove;
         visitedCoords.add(nextMoves[i].toString());
         toVisit.push(nextMoves[i]);
       }
-
     }
-
-
-    counter++;
-
   }
-
   console.log("Search Finisjhed!");
-
   return moveHistory;
 
 }
 
-
-
-
 async function breadthFirstSearch(board, startPoint) {
 
-
-  //WHY IS THE SET NOT WORKING LMFAO AHHHHHHHHHHHHHHHHHH
   let visitedCoords = new Set();
   let toVisit = [];
 
   toVisit.push(startPoint);
-  console.log("Starting search...");
-  var counter = 0;
+  //console.log("Starting search...");
   while (toVisit.length != 0) {
     var currentMove = toVisit.pop();
-
-    // if(visitedCoords.has(currentMove.toString())){
-    //   continue;
-    // }
-
     await sleep(50);
-
-
-    //toVisit.toString();
-    console.log(...toVisit);
-
-    //console.log(...toVisit.toList());
+    //console.log(...toVisit);
     visitedCoords.add(currentMove.toString());
-    //moveHistory.push(currentMove);
-
 
     if (board[currentMove.x][currentMove.y] == end_point) {
       console.log("FOUND!!!!!!!!");
-      moveHistory.add(currentMove);
+      path_helper(toVisit, currentMove, startPoint);
       return moveHistory;
     }
+    path_helper(toVisit, currentMove, startPoint);
 
-    //coloring
-    if (board[currentMove.x][currentMove.y] == empty || board[currentMove.x][currentMove.y] == unexplored) {
-      board[currentMove.x][currentMove.y] = explored;
-    }
-
-    //coloring explored and unexplored
-    for (var i = 0; i < toVisit.length; i++) {
-      if (board[toVisit[i].x][toVisit[i].y] == empty) {
-        board[toVisit[i].x][toVisit[i].y] = unexplored;
-      }
-    }
-
-    let bestPath = currentMove;
-    moveHistory = [];
-    while (bestPath.parent !== null) {
-      moveHistory.push(bestPath);
-      bestPath = bestPath.parent;
-    }
-
-
+    //Add possible moves form that explored node
     var nextMoves = possibleMoves(currentMove);
-
-    console.log([...visitedCoords]);
     for (var i = 0; i < nextMoves.length; i++) {
-      console.log(nextMoves[i]);
-      console.log(!visitedCoords.has(nextMoves[i].toString()));
+      if (board[nextMoves[i].x][nextMoves[i].y] == end_point) {
+        nextMoves[i].parent = currentMove;
+        path_helper(toVisit, nextMoves[i], startPoint);
+        return moveHistory;
+      }
       if (!visitedCoords.has(nextMoves[i].toString())) {
         nextMoves[i].parent = currentMove;
         visitedCoords.add(nextMoves[i].toString());
         toVisit.unshift(1);
         toVisit[0] = nextMoves[i];
       }
-
     }
-
-
-    counter++;
-
   }
-
   console.log("Search Finished!");
-
   return moveHistory;
-
 }
-
 
 function getManhattanDistance(coord1, coord2) {
   return abs(coord1.x - coord2.x) + abs(coord1.y - coord2.y)
 }
 
+//TODO MKAE MORE EFFICIENT
 function getEndPoints() {
   var epoints = [];
   for (var i = 0; i < columns; i++) {
     for (var j = 0; j < rows; j++) {
       if (board[i][j] == end_point) {
-        epoints.push(new Coords(i,j));
+        epoints.push(new Coords(i, j));
       }
     }
   }
   return epoints;
-
-
 }
 
-function getSmallestCost(start, endpoints){
+function getSmallestCost(start, endpoints) {
   min = Infinity;
-  for(var i = 0; i < endpoints.length; i++){
+  for (var i = 0; i < endpoints.length; i++) {
     temp = getManhattanDistance(start, endpoints[i]);
-    if(temp < min){
+    if (temp < min) {
       min = temp;
     }
   }
@@ -631,9 +465,6 @@ function getSmallestCost(start, endpoints){
 }
 
 async function greedy(board, startPoint) {
-
-
-  //WHY IS THE SET NOT WORKING LMFAO AHHHHHHHHHHHHHHHHHH
   let visitedCoords = new Set();
   // let toVisit = [];
   let pq = new MinPriorityQueue();
@@ -642,49 +473,19 @@ async function greedy(board, startPoint) {
   startPoint.cost = getSmallestCost(startPoint, endpointz);
   pq.add(startPoint);
   console.log("Starting search...");
-  var counter = 0;
   while (pq.heap.length != 0) {
     var currentMove = pq.remove();
-
-    // if(visitedCoords.has(currentMove.toString())){
-    //   continue;
-    // }
-
     await sleep(50);
 
-    //console.log(...toVisit.toList());
     visitedCoords.add(currentMove.toString());
-    //moveHistory.push(currentMove);
-
-
     if (board[currentMove.x][currentMove.y] == end_point) {
       console.log("FOUND!!!!!!!!");
-      moveHistory.add(currentMove);
+      path_helper(pq.heap, currentMove, startPoint);
       return moveHistory;
     }
 
-    //coloring
-    if (board[currentMove.x][currentMove.y] == empty || board[currentMove.x][currentMove.y] == unexplored) {
-      board[currentMove.x][currentMove.y] = explored;
-    }
-
-    //coloring explored and unexplored
-    for (var i = 0; i < pq.heap.length; i++) {
-      if (board[pq.heap[i].x][pq.heap[i].y] == empty) {
-        board[pq.heap[i].x][pq.heap[i].y] = unexplored;
-      }
-    }
-
-    let bestPath = currentMove;
-    moveHistory = [];
-    while (bestPath.parent !== null) {
-      moveHistory.push(bestPath);
-      bestPath = bestPath.parent;
-    }
-
-
+    path_helper(pq.heap, currentMove, startPoint);
     var nextMoves = possibleMoves(currentMove);
-
     // console.log([...visitedCoords]);
     for (var i = 0; i < nextMoves.length; i++) {
       //console.log(nextMoves[i]);
@@ -694,20 +495,14 @@ async function greedy(board, startPoint) {
         visitedCoords.add(nextMoves[i].toString());
         nextMoves[i].cost = getSmallestCost(nextMoves[i], endpointz);
         pq.add(nextMoves[i]);
-        // toVisit.unshift(1);
-        // toVisit[0] = nextMoves[i];
       }
-
     }
-
-
-    counter++;
-
   }
-
   console.log("Search Finished!");
-
   return moveHistory;
+}
+
+async function AStar(board, startPoint){
 
 }
 
