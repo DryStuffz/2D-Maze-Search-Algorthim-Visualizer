@@ -6,3 +6,33 @@ html, body {
 canvas {
   display: block;
 }
+
+.topnav {
+  background-color: #F0F8EA;
+  overflow: hidden;
+}
+
+.topnav .toggle-button.active{
+  background-color: #7ba098;
+  color: #fff;
+}
+/* Style for the toggleable button */
+.toggle-button {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ccc; 
+  cursor: pointer;
+}
+
+
+
+label {
+  color: #000;
+}
+
+/* Style for the content that appears or disappears */
+.content {
+  display: none;
+}
+

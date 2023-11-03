@@ -1,7 +1,21 @@
 const startButton = document.getElementById("startButton");
+const slider = document.getElementById("slider");
+
+
+
+document.getElementById("toggleCheckbox").addEventListener("change", function() {
+  var bodyContent = document.getElementById("bodyContent");
+  if (this.checked) {
+      bodyContent.style.display = "block";
+  } else {
+      bodyContent.style.display = "none";
+  }
+});
+
+
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms * ((100 - slider.value)/100)));
 }
 
 let w = 30;
@@ -19,12 +33,12 @@ const start_point = 2;
 const end_point = 3;
 const explored = 4;
 const unexplored = 5;
-colors = [225, "#000000", "#AD7800", "#0D087A", "#BBB093", "#98D095"]
+colors = ["#F0F8EA", "#2B0504", "#F09400", "#0012D6", " #9D9C62", "#A8C686"]
 let sp = null;
 //CANVAS PORTION
 function setup() {
-  canvas = createCanvas(1200, 600);
-
+  canvas = createCanvas(windowWidth , windowHeight);
+  canvas.style('display', 'block');
   canvas.mouseClicked(addStart);
 
   columns = floor(width / w);
@@ -48,7 +62,7 @@ function draw() {
   background(220);
   //noFill();
   fill(225);
-  stroke(0);
+  stroke(210);
   strokeWeight(1);
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
@@ -56,115 +70,14 @@ function draw() {
       rect(i * w, j * w, w - 1, w - 1);
     }
   }
-  strokeWeight(5);
+  stroke("#010001")
+  strokeWeight(10);
   for (var i = 0; i < moveHistory.length - 1; i++) {
     line(moveHistory[i].x * w + w / 2, moveHistory[i].y * w + w / 2, moveHistory[i].parent.x * w + w / 2, moveHistory[i].parent.y * w + w / 2);
   }
 }
 
 
-class MinPriorityQueue {
-  constructor() {
-    this.heap = [];
-  }
-
-  // Helper Methods
-  getLeftChildIndex(parentIndex) {
-    return 2 * parentIndex + 1;
-  }
-
-  getRightChildIndex(parentIndex) {
-    return 2 * parentIndex + 2;
-  }
-
-  getParentIndex(childIndex) {
-    return Math.floor((childIndex - 1) / 2);
-  }
-
-  hasLeftChild(index) {
-    return this.getLeftChildIndex(index) < this.heap.length;
-  }
-
-  hasRightChild(index) {
-    return this.getRightChildIndex(index) < this.heap.length;
-  }
-
-  hasParent(index) {
-    return this.getParentIndex(index) >= 0;
-  }
-
-  leftChild(index) {
-    return this.heap[this.getLeftChildIndex(index)];
-  }
-
-  rightChild(index) {
-    return this.heap[this.getRightChildIndex(index)];
-  }
-
-  parent(index) {
-    return this.heap[this.getParentIndex(index)];
-  }
-
-  swap(indexOne, indexTwo) {
-    const temp = this.heap[indexOne];
-    this.heap[indexOne] = this.heap[indexTwo];
-    this.heap[indexTwo] = temp;
-  }
-
-  peek() {
-    if (this.heap.length === 0) {
-      return null;
-    }
-    return this.heap[0];
-  }
-
-  // Removing an element will remove the
-  // top element with highest priority then
-  // heapifyDown will be called
-  remove() {
-    if (this.heap.length === 0) {
-      return null;
-    }
-    const item = this.heap[0];
-    this.heap[0] = this.heap[this.heap.length - 1];
-    this.heap.pop();
-    this.heapifyDown();
-    return item;
-  }
-
-  add(item) {
-    this.heap.push(item);
-    this.heapifyUp();
-  }
-
-  heapifyUp() {
-    let index = this.heap.length - 1;
-    while (this.hasParent(index) && this.parent(index).cost > this.heap[index].cost) {
-      this.swap(this.getParentIndex(index), index);
-      index = this.getParentIndex(index);
-    }
-  }
-
-  heapifyDown() {
-    let index = 0;
-    while (this.hasLeftChild(index)) {
-      let smallerChildIndex = this.getLeftChildIndex(index);
-      if (this.hasRightChild(index) && this.rightChild(index).cost < this.leftChild(index).cost) {
-        smallerChildIndex = this.getRightChildIndex(index);
-      }
-      if (this.heap[index].cost < this.heap[smallerChildIndex].cost) {
-        break;
-      } else {
-        this.swap(index, smallerChildIndex);
-      }
-      index = smallerChildIndex;
-    }
-  }
-
-
-
-
-}
 
 
 function addWall() {
@@ -254,28 +167,6 @@ function addEnd() {
 
 
 //MAZE ALGORTHIMS
-
-class Coords {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.parent = null;
-    this.cost = 0; //also F for a Star
-    this.g = null; //for aStar
-  }
-
-  toString() {
-    return `(${this.x},${this.y})`;
-  }
-
-  equals(coord2) {
-    if (!(coord2 instanceof Coords)) {
-      return false;
-    }
-    return (coord2.x === this.x && coord2.y === this.y);
-  }
-
-}
 
 
 function possibleMoves(currentLocation) {
@@ -369,7 +260,7 @@ async function depthFirstSearch(board, startPoint) {
   while (toVisit.length != 0) {
     var currentMove = toVisit.pop();
 
-    await sleep(50);
+    await sleep(200);
     //toVisit.toString();
     //console.log(...toVisit);
     //console.log(...toVisit.toList());
@@ -408,7 +299,7 @@ async function breadthFirstSearch(board, startPoint) {
   //console.log("Starting search...");
   while (toVisit.length != 0) {
     var currentMove = toVisit.pop();
-    await sleep(50);
+    await sleep(200);
     //console.log(...toVisit);
     visitedCoords.add(currentMove.toString());
 
@@ -464,8 +355,7 @@ function getSmallestCost(start, endpoints) {
       min = temp;
     }
   }
-
-  return temp;
+  return min;
 }
 
 async function greedy(board, startPoint) {
@@ -479,7 +369,7 @@ async function greedy(board, startPoint) {
   console.log("Starting search...");
   while (pq.heap.length != 0) {
     var currentMove = pq.remove();
-    await sleep(50);
+    await sleep(200);
 
     visitedCoords.add(currentMove.toString());
     if (board[currentMove.x][currentMove.y] == end_point) {
@@ -490,16 +380,18 @@ async function greedy(board, startPoint) {
 
     path_helper(pq.heap, currentMove, startPoint);
     var nextMoves = possibleMoves(currentMove);
-    // console.log([...visitedCoords]);
+    
     for (var i = 0; i < nextMoves.length; i++) {
-      //console.log(nextMoves[i]);
-      //console.log(!visitedCoords.has(nextMoves[i].toString()));
 
       if (!visitedCoords.has(nextMoves[i].toString())) {
         nextMoves[i].parent = currentMove;
         visitedCoords.add(nextMoves[i].toString());
         nextMoves[i].cost = getSmallestCost(nextMoves[i], endpointz);
         pq.add(nextMoves[i]);
+        
+        
+        console.log(nextMoves[i].toString(), nextMoves[i].cost)
+        
       }
     }
   }
@@ -551,7 +443,7 @@ async function AStar(board, startPoint) {
 
     removeFromArray(open, currentMove);
     closed.push(currentMove);
-    await sleep(50);
+    await sleep(200);
     path_helper(open, currentMove, startPoint);
 
     var nextMoves = possibleMoves(currentMove);
