@@ -13,8 +13,8 @@
   <script src="libraries/p5.sound.min.js"></script>
   <script src="libraries/quicksettings.js"></script>
   <script src="libraries/p5.gui.js"></script>
-  <script src = "pq.js"></script>
-  <script src = "coords.js"></script>
+  <script src="pq.js"></script>
+  <script src="coords.js"></script>
 
 
 
@@ -49,7 +49,7 @@
 
 
 <body>
-  <div class = "topnav">
+  <div class="topnav">
     <div class="toggle-button" onclick="toggleButton(this)" data-button-id="wall_button">
       Add Wall
       <div class="slider"></div>
@@ -59,6 +59,7 @@
       Erase
       <div class="slider"></div>
     </div>
+
     <div class="toggle-button" onclick="toggleButton(this)" data-button-id="start_location_button">
       Start Point
       <div class="slider"></div>
@@ -67,17 +68,48 @@
       End Point
       <div class="slider"></div>
     </div>
-    <select id = "Algorthims">
+    <select id="Algorthims">
       <option value="DFS">DFS</option>
       <option value="BFS">BFS</option>
       <option value="Greedy">Greedy</option>
       <option value="AStar">A*</option>
     </select>
-    <label for="slider">Speed:</label>
+    <div class="speedslider">
+      <label for="slider">Speed</label>
       <input type="range" id="slider" name="slider" min="0" max="100" value="50">
-    <button id="startButton">Start</button>
-    <label for="toggleCheckbox">Legend</label>
-      <input type="checkbox" id="toggleCheckbox">
+    </div>
+
+    <button class=start id="startButton">Start</button>
+
+
+
+    <button id="toggleButton">Legend</button>
+
+    <div id="content" class="hidden">
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #2B0504;"></div>
+          <div class="legend-text">Wall</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #F09400;"></div>
+          <div class="legend-text">Start Point</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #0012D6;"></div>
+          <div class="legend-text">End Point</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #9D9C62;"></div>
+          <div class="legend-text">Explored</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background-color: #A8C686;"></div>
+          <div class="legend-text">Unexplored</div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <script src="sketch.js"></script>
 </body>

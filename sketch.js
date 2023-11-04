@@ -1,16 +1,21 @@
+const legendTogg = document.getElementById("toggleButton");
+const content = document.getElementById("content");
+
+legendTogg.addEventListener("click", function() {
+    if (content.classList.contains("hidden")) {
+        content.classList.remove("hidden");
+        legendTogg.style.backgroundColor = " #7ba098";
+        legendTogg.style.color ="white";
+    } else {
+        content.classList.add("hidden");
+        legendTogg.style.backgroundColor = "#F0F8EA";
+        legendTogg.style.color ="black";
+    }
+});
+
+
 const startButton = document.getElementById("startButton");
 const slider = document.getElementById("slider");
-
-
-
-document.getElementById("toggleCheckbox").addEventListener("change", function() {
-  var bodyContent = document.getElementById("bodyContent");
-  if (this.checked) {
-      bodyContent.style.display = "block";
-  } else {
-      bodyContent.style.display = "none";
-  }
-});
 
 
 

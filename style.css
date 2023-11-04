@@ -1,6 +1,12 @@
+*{
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  border: none;
+}
 html, body {
   margin: 0;
   padding: 0;
+  
 }
 
 canvas {
@@ -9,7 +15,8 @@ canvas {
 
 .topnav {
   background-color: #F0F8EA;
-  overflow: hidden;
+  display: flex;
+  flex-direction: row;
 }
 
 .topnav .toggle-button.active{
@@ -35,4 +42,88 @@ label {
 .content {
   display: none;
 }
+
+/* Style for the hidden class */
+.hidden {
+  display: none;
+}
+
+/* Style for the legend */
+.legend {
+  display: flex;
+  flex-direction: column;
+  width: 150px;
+  position: absolute;
+  background-color:  #F0F8EA;
+  border-radius: 0px 0px 20px 20px;
+}
+
+/* Style for each legend item */
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 10px;
+  
+}
+
+/* Style for the legend color box */
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
+  margin-right: 5px;
+}
+
+/* Style for the legend text */
+.legend-text {
+  font-size: 14px;
+}
+
+select{   
+  background-color: #F0F8EA;
+  width: 120px;
+  text-align: center;
+
+}
+
+select:hover, select:focus {
+  border-color: #7ba098;
+}
+
+.speedslider{
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+button {
+  cursor: pointer;
+  transition: transform 0.2s; 
+  width: 120px;
+  background-color: #F0F8EA;
+}
+
+button:hover {
+  background-color: #7ba098;
+  color: white;
+}
+
+/* Add a custom class to control the animation */
+.button-clicked {
+  transform: scale(1.1); /* Scale up by 10% on click */
+}
+
+.legendtoggle {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ccc; 
+  cursor: pointer;
+}
+
+.legendtoggle.on{
+  background-color: #7ba098;  
+  color: #fff;
+}
+
 
